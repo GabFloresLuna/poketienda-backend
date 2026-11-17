@@ -3,6 +3,9 @@ package cl.poketienda.ms_productos.controller;
 import cl.poketienda.ms_productos.dto.CategoriaRequest;
 import cl.poketienda.ms_productos.dto.CategoriaResponse;
 import cl.poketienda.ms_productos.service.CategoriaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,32 +23,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/categorias")
 @RequiredArgsConstructor
+@Tag(name = "Categorías", description = "Categorías de productos")
 public class CategoriaController {
 
     private final CategoriaService categoriaService;
 
     @GetMapping
+    @Operation(summary = "Listar categorías (público)")
     public List<CategoriaResponse> listar() {
         return categoriaService.listar();
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Ver una categoría (público)")
     public CategoriaResponse obtener(@PathVariable Long id) {
         return categoriaService.obtener(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Crear una categoría (ADMIN)")
     public CategoriaResponse crear(@Valid @RequestBody CategoriaRequest request) {
         return categoriaService.crear(request);
     }
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Editar una categoría (ADMIN)")
     public CategoriaResponse actualizar(@PathVariable Long id, @Valid @RequestBody CategoriaRequest request) {
         return categoriaService.actualizar(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Eliminar una categoría; no si tiene productos (ADMIN)")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminar(@PathVariable Long id) {
         categoriaService.eliminar(id);

@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -33,6 +34,12 @@ public class ManejadorGlobalExcepciones {
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
     public ResponseEntity<ErrorResponse> peticionMalFormada(Exception ex) {
         return responder(HttpStatus.BAD_REQUEST, "La petición tiene un formato incorrecto");
+    }
+
+    // Si algún día se usan anotaciones de método, este error debe ser 403 y no 500.
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> accesoDenegado(AccessDeniedException ex) {
+        return responder(HttpStatus.FORBIDDEN, "No tienes permiso para realizar esta acción");
     }
 
     @ExceptionHandler(RecursoNoEncontradoException.class)

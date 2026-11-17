@@ -6,10 +6,12 @@ import cl.poketienda.ms_ventas.dto.StockRequest;
 import cl.poketienda.ms_ventas.exception.RecursoNoEncontradoException;
 import cl.poketienda.ms_ventas.exception.ReglaNegocioException;
 import cl.poketienda.ms_ventas.exception.ServicioNoDisponibleException;
+import cl.poketienda.ms_ventas.security.JwtService;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
@@ -23,8 +25,10 @@ public class ProductosCliente {
     private static final String MENSAJE_NO_DISPONIBLE = "Servicio de productos no disponible";
 
     private final RestClient restClient;
+    private final JwtService jwtService;
 
-    public ProductosCliente(@Value("${ms-productos.url}") String urlBase) {
+    public ProductosCliente(@Value("${ms-productos.url}") String urlBase, JwtService jwtService) {
+        this.jwtService = jwtService;
         HttpClient httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(3))
                 .build();
@@ -66,6 +70,8 @@ public class ProductosCliente {
         try {
             restClient.post()
                     .uri(ruta)
+                    // Los endpoints de stock son internos: ms-productos exige el token de servicio.
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtService.generarTokenServicio())
                     .body(new StockRequest(items))
                     .retrieve()
                     .toBodilessEntity();

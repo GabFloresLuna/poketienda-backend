@@ -19,6 +19,7 @@ Ningún microservicio lee las tablas de otro. ms-ventas consulta precios y descu
 ```
 poketienda-backend/
 ├── Readme.md
+├── docs/
 ├── ms-usuarios/
 ├── ms-productos/
 └── ms-ventas/

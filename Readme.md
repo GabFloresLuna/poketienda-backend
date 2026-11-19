@@ -2,7 +2,7 @@
 
 Backend de la tienda online PokéTienda Pearl para la Evaluación Parcial 3 de DSY1104 Desarrollo Fullstack II (Duoc UC). Son tres microservicios Spring Boot, cada uno con su propia base de datos MySQL, que exponen una API REST protegida con JWT y documentada con Swagger.
 
-Frontend (React): https://github.com/GabFloresLuna/ProyectoPkmnPearlShop
+Frontend (React): https://github.com/GabFloresLuna/poketienda-frontend
 
 ## Arquitectura
 
@@ -18,8 +18,7 @@ Ningún microservicio lee las tablas de otro. ms-ventas consulta precios y descu
 
 ```
 poketienda-backend/
-├── README.md
-├── .gitignore
+├── Readme.md
 ├── ms-usuarios/
 ├── ms-productos/
 └── ms-ventas/
@@ -42,7 +41,7 @@ Maven no se instala aparte: cada microservicio trae su propio `mvnw`.
 ### 1. Clonar el repositorio
 
 ```bash
-git clone <URL-del-repositorio>
+git clone https://github.com/GabFloresLuna/poketienda-backend.git
 cd poketienda-backend
 ```
 
@@ -113,6 +112,16 @@ Repetir con `ms-usuarios` y `ms-ventas`.
 | ms-ventas | http://localhost:8083/swagger-ui.html |
 
 Para probar un endpoint protegido: iniciar sesión en `POST /api/v1/auth/login` (ms-usuarios), copiar el access token y pegarlo en el botón **Authorize** de Swagger.
+
+### Usuarios de prueba
+
+Se crean solos al primer arranque de ms-usuarios.
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| ADMIN | admin@duoc.cl | Admin123 |
+| VENDEDOR | vendedor@duoc.cl | Vendedor123 |
+| CLIENTE | cliente@gmail.com | Cliente123 |
 
 ## Pruebas
 

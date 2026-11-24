@@ -1,0 +1,77 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: poketienda-mysql
+    mem_limit: 400m
+    command:
+      - --innodb-buffer-pool-size=64M
+      - --performance-schema=OFF
+      - --max-connections=30
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      # 3307 en tu PC para no chocar con el MySQL de Windows (3306)
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  ms-usuarios:
+    build: ./ms-usuarios
+    container_name: poketienda-ms-usuarios
+    ports:
+      - "8081:8081"
+    mem_limit: 320m
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx160m -XX:MaxMetaspaceSize=120m -Xss512k -XX:+UseSerialGC -XX:TieredStopAtLevel=1"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/poketienda_usuarios
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  ms-productos:
+    build: ./ms-productos
+    container_name: poketienda-ms-productos
+    ports:
+      - "8082:8082"
+    mem_limit: 320m
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx160m -XX:MaxMetaspaceSize=120m -Xss512k -XX:+UseSerialGC -XX:TieredStopAtLevel=1"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/poketienda_productos
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  ms-ventas:
+    build: ./ms-ventas
+    container_name: poketienda-ms-ventas
+    ports:
+      - "8083:8083"
+    mem_limit: 320m
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx160m -XX:MaxMetaspaceSize=120m -Xss512k -XX:+UseSerialGC -XX:TieredStopAtLevel=1"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/poketienda_ventas
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      # ms-ventas llama a ms-productos por el nombre del servicio, no por localhost
+      MS_PRODUCTOS_URL: http://ms-productos:8082/api/v1
+    depends_on:
+      mysql:
+        condition: service_healthy
+      ms-productos:
+        condition: service_started
+
+volumes:
+  mysql-data:
